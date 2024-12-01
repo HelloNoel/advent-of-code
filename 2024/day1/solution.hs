@@ -40,3 +40,4 @@ score i l r ([], y:ys)
 score i l r (x:xs, [])
     | x == i = score i (l + 1) r (xs, [])
     | otherwise = i * l * r
+score i l r _ = i * l * r
