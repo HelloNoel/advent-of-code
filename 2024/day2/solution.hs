@@ -1,6 +1,7 @@
 part1 :: FilePath -> IO ()
 part1 = printFromFile checkSafety
 
+part2 :: FilePath -> IO ()
 part2 = printFromFile checkSafety'
 
 printFromFile :: (String -> Int) -> FilePath -> IO ()
@@ -13,8 +14,8 @@ checkSafety = length . filter id . map (checkList . map read . words) . lines
 
 checkList :: [Int] -> Bool
 checkList (x : y : xs)
-  | x < y = isSafe (* 1) (x : y : xs)
-  | otherwise = isSafe (* (-1)) (x : y : xs)
+  | x < y = isSafe id (x : y : xs)
+  | otherwise = isSafe negate (x : y : xs)
 
 isSafe :: (Int -> Int) -> [Int] -> Bool
 isSafe f (x : y : xs)
@@ -29,12 +30,11 @@ checkSafety' = length . filter id . map (checkList' . map read . words) . lines
 
 checkList' :: [Int] -> Bool
 checkList' (x : y : xs)
-  | x < y =
-      let i = isSafe' (* 1) 0 (x : y : xs)
-       in i == -1 || checkList (deleteAt i (x : y : xs)) || checkList (deleteAt (i + 1) (x : y : xs)) || checkList (deleteAt (i - 1) (x : y : xs))
-  | otherwise =
-      let i = isSafe' (* (-1)) 0 (x : y : xs)
-       in i == -1 || checkList (deleteAt i (x : y : xs)) || checkList (deleteAt (i + 1) (x : y : xs)) || checkList (deleteAt (i - 1) (x : y : xs))
+  | x < y = removeIfNotSafe $ isSafe' id 0 (x : y : xs)
+  | otherwise = removeIfNotSafe $ isSafe' negate 0 (x : y : xs)
+  where
+    removeIfNotSafe ind = ind == -1 || removeAndCheck ind || removeAndCheck (ind + 1) || removeAndCheck 0
+    removeAndCheck ind = checkList (deleteAt ind (x : y : xs))
 
 isSafe' :: (Int -> Int) -> Int -> [Int] -> Int
 isSafe' f i (x : y : xs)
