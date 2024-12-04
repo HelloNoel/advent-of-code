@@ -46,26 +46,25 @@ getNext v (x, y)
   | x < i - 1 = Just (x + 1, y)
   | otherwise = getNext v (-1, y + 1)
   where
-    i = V.length $ v V.! 1
+    i = V.length $ v V.! 0
     j = V.length v
 
 getX :: V.Vector (V.Vector Char) -> (Int, Int) -> Maybe (String, String)
 getX v (x, y) = do
-  as <- v V.!? y
-  a <- as V.!? x
   ms <- v V.!? (y + 1)
   m1 <- ms V.!? (x + 1)
   ss <- v V.!? (y - 1)
   s1 <- ss V.!? (x - 1)
   m2 <- ms V.!? (x - 1)
   s2 <- ss V.!? (x + 1)
-  return ([m1, a, s1], [m2, a, s2])
+  return ([m1, s1], [m2, s2])
 
 checkX :: V.Vector (V.Vector Char) -> (Int, Int) -> Int
-checkX v (x, y) =
-  case getX v (x, y) of
-    Nothing -> 0
-    Just (xs, ys) -> fromEnum $ (xs == "MAS" || xs == "SAM") && (ys == "MAS" || ys == "SAM")
+checkX v (x, y)
+  | v V.! y V.! x == 'A' = case getX v (x, y) of
+      Nothing -> 0
+      Just (xs, ys) -> fromEnum $ (xs == "MS" || xs == "SM") && (ys == "MS" || ys == "SM")
+  | otherwise = 0
 
 countMas :: (Int, Int) -> V.Vector (V.Vector Char) -> Int
 countMas coor v =
