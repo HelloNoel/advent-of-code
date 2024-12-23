@@ -6,12 +6,18 @@ import qualified Data.Vector as V
 import Text.Regex.TDFA (AllTextMatches (getAllTextMatches), (=~))
 
 part1 :: FilePath -> IO ()
-part1 = printFromFile $ intercalate "," . map show . reverse . runProgram
+part1 = printFromFile $ intercalate "," . map show . runProgram
+
+part2 :: FilePath -> IO ()
+part2 = printFromFile parseAndFind
 
 runProgram :: String -> [Int]
 runProgram content = compute a b c 0 (V.fromList prog) []
   where
     (a : b : c : prog) = map read . getAllTextMatches $ content =~ "[[:digit:]]+"
+
+parseAndFind :: String -> Maybe Int
+parseAndFind content = findA . drop 3 . map read . getAllTextMatches $ content =~ "[[:digit:]]+"
 
 printFromFile :: (Show b) => (String -> b) -> FilePath -> IO ()
 printFromFile f input = do
@@ -20,7 +26,7 @@ printFromFile f input = do
 
 compute :: Int -> Int -> Int -> Int -> V.Vector Int -> [Int] -> [Int]
 compute a b c p prog out
-  | p >= V.length prog = out
+  | p >= V.length prog = reverse out
   | otherwise = case prog V.! p of
       0 ->
         let a' = a `div` (2 ^ combo)
@@ -55,3 +61,15 @@ compute a b c p prog out
       7 -> error "invalid program"
       x -> x
     lit = prog V.! (p + 1)
+
+findA :: [Int] -> Maybe Int
+findA prog = findA' [0] [] $ reverse prog
+  where
+    progVec = V.fromList prog
+    findA' candidates _ []
+      | null candidates = Nothing
+      | otherwise = Just $ minimum candidates
+    findA' candidates acc (p : ps) =
+      let acc' = p : acc
+          candidates' = [y | x <- candidates, y <- [x * 8 .. x * 8 + 7], compute y 0 0 0 progVec [] == acc']
+       in findA' candidates' acc' ps
