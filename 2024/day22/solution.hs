@@ -1,12 +1,12 @@
 import Data.Bits
 import Data.Foldable (foldl')
-import qualified Data.Map as Map
+import qualified Data.Map.Strict as Map
 
 part1 :: FilePath -> IO ()
 part1 = printFromFile $ sum . map ((!! 2000) . iterate nextSecret . read) . lines
 
 part2 :: FilePath -> IO ()
-part2 = printFromFile $ Map.foldl' max 0 . foldl' (\m s -> Map.unionWith (+) m $ bestPrice Map.empty s) Map.empty . map (take 2000 . iterate nextSecret . read) . lines
+part2 = printFromFile $ maximum . foldl' (\m s -> Map.unionWith (+) m $ bestPrice Map.empty s) Map.empty . map (take 2000 . iterate nextSecret . read) . lines
 
 printFromFile :: (Show b) => (String -> b) -> FilePath -> IO ()
 printFromFile f input = do
