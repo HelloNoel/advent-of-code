@@ -1,5 +1,5 @@
-import Data.Foldable (foldl')
-import Data.List (intercalate, sortBy)
+import Data.Foldable (foldl', maximumBy)
+import Data.List (intercalate)
 import qualified Data.Map as Map
 import Data.Ord (comparing)
 import qualified Data.Set as Set
@@ -8,7 +8,7 @@ part1 :: FilePath -> IO ()
 part1 = printFromFile $ Set.size . interconneted . neighbours . map (\x -> let (a, b) = break (== '-') x in (a, tail b)) . lines
 
 part2 :: FilePath -> IO ()
-part2 = printFromFile $ intercalate "," . Set.toList . head . maxCliques . neighbours . map (\x -> let (a, b) = break (== '-') x in (a, tail b)) . lines
+part2 = printFromFile $ intercalate "," . Set.toList . maxClique . neighbours . map (\x -> let (a, b) = break (== '-') x in (a, tail b)) . lines
 
 printFromFile :: (Show b) => (String -> b) -> FilePath -> IO ()
 printFromFile f input = do
@@ -26,8 +26,8 @@ interconneted lanparty = Map.foldlWithKey' (\ss k s -> Set.union ss $ Set.foldl'
       | otherwise = s
     allTriangles k s ss' str = Set.union ss' . Set.foldl' (triangles k str) Set.empty . Set.intersection s $ lanparty Map.! str
 
-maxCliques :: Map.Map String (Set.Set String) -> [Set.Set String]
-maxCliques lanparty = sortBy (comparing $ negate . Set.size) . Set.toList . Set.map (Set.map snd) $ bronKerbosch Set.empty neighbourSet Set.empty
+maxClique :: Map.Map String (Set.Set String) -> Set.Set String
+maxClique lanparty = maximumBy (comparing Set.size) . Set.toList . Set.map (Set.map snd) $ bronKerbosch Set.empty neighbourSet Set.empty
   where
     mapWithSize = Map.mapWithKey (\k v -> (Set.size v, k)) lanparty
     neighbourMap = Map.map (Set.map (mapWithSize Map.!)) lanparty
