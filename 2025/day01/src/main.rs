@@ -29,8 +29,7 @@ fn read_file() -> String {
     if args.len() != 2 {
         eprintln!("Usage: {} <input_file>", args[0]);
     }
-    fs::read_to_string(&args[1])
-        .expect("Failed to read input file")
+    fs::read_to_string(&args[1]).expect("Failed to read input file")
 }
 
 fn parse_instructions(contents: &str) -> Vec<(char, i32)> {
