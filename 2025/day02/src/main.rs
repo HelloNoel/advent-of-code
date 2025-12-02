@@ -4,14 +4,16 @@ use std::fs;
 fn main() {
     let contents = read_file();
 
-    let input = contents.split(",").map(|x| x.split_once("-").unwrap());
+    let input: Vec<(&str, &str)> = contents
+        .split(",")
+        .map(|x| x.split_once("-").unwrap())
+        .collect();
 
-    // let p: Vec<(&str, &str)> = input.collect();
-    // println!("{:?}", p);
-
-    let res: i64 = input
-        .map(|(x, y)| {
-            let start: i64 = x.trim_end().parse().unwrap();
+    let res1: u64 = input
+        .iter()
+        .clone()
+        .flat_map(|(x, y)| {
+            let start: u64 = x.trim_end().parse().unwrap();
             let end = y.trim_end().parse().unwrap();
             (start..end).filter(|n| {
                 let s = n.to_string();
@@ -19,10 +21,31 @@ fn main() {
                 a == b
             })
         })
-        .flatten()
         .sum();
 
-    println!("Total sum: {}", res);
+    println!("Total sum part 1: {}", res1);
+
+    let res2: u64 = input
+        .into_iter()
+        .flat_map(|(x, y)| {
+            let start: u64 = x.trim_end().parse().unwrap();
+            let end = y.trim_end().parse().unwrap();
+            (start..end).filter(|n| {
+                let ns = n.to_string();
+                let l = ns.len();
+                (1..=l / 2).filter(move |v| l % v == 0).any(move |v| {
+                    ns.chars()
+                        .collect::<Vec<char>>()
+                        .chunks(v)
+                        .collect::<Vec<&[char]>>()
+                        .windows(2)
+                        .all(|w| w[0] == w[1])
+                })
+            })
+        })
+        .sum();
+
+    println!("Total sum part 2: {}", res2);
 }
 
 fn read_file() -> String {
