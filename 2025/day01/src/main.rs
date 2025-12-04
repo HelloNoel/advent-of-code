@@ -1,8 +1,7 @@
-use std::env;
-use std::fs;
+use utils;
 
 fn main() {
-    let contents = read_file();
+    let contents = utils::read_file();
     let instructions = parse_instructions(&contents);
 
     let mut position = 50;
@@ -21,15 +20,6 @@ fn main() {
     println!("Final position: {}", position);
     println!("Stopped at 0: {} times", stopped_count);
     println!("Passed 0: {} times", passed_count);
-}
-
-fn read_file() -> String {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() != 2 {
-        eprintln!("Usage: {} <input_file>", args[0]);
-    }
-    fs::read_to_string(&args[1]).expect("Failed to read input file")
 }
 
 fn parse_instructions(contents: &str) -> Vec<(char, i32)> {

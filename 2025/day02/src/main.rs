@@ -1,8 +1,7 @@
-use std::env;
-use std::fs;
+use utils;
 
 fn main() {
-    let contents = read_file();
+    let contents = utils::read_file();
 
     let input: Vec<(&str, &str)> = contents
         .split(",")
@@ -46,13 +45,4 @@ fn main() {
         .sum();
 
     println!("Total sum part 2: {}", res2);
-}
-
-fn read_file() -> String {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() != 2 {
-        eprintln!("Usage: {} <input_file>", args[0]);
-    }
-    fs::read_to_string(&args[1]).expect("Failed to read input file")
 }
