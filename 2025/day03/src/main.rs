@@ -1,4 +1,3 @@
-use std::char;
 use utils;
 
 fn main() {
@@ -12,20 +11,23 @@ fn joltage(banks: &str, num: usize) -> u64 {
     banks
         .lines()
         .map(|line| {
-            let bank: Vec<u32> = line.chars().map(|c| c.to_digit(10).unwrap()).collect();
-            let l = bank.len();
+            let mut bank = &line
+                .chars()
+                .map(|c| c.to_digit(10).unwrap())
+                .collect::<Vec<u32>>()[..];
 
-            let mut res = String::new();
-            let mut bank_slice = &bank[..];
-            let mut end = l - num + 1;
+            let mut res = 0;
+            let mut mul = 10u64.pow(u32::try_from(num).unwrap() - 1);
+            let mut end = bank.len() - num + 1;
             for _ in 0..num {
-                let m = bank_slice[0..end].iter().max().unwrap();
-                let p = bank_slice.iter().position(|x| x == m).unwrap();
-                res.push(char::from_digit(bank_slice[p], 10).unwrap());
-                bank_slice = &bank_slice[p + 1..];
+                let m = bank[0..end].iter().max().unwrap();
+                let p = bank.iter().position(|x| x == m).unwrap();
+                res += u64::from(*m) * mul;
+                bank = &bank[p + 1..];
                 end -= p;
+                mul /= 10;
             }
-            res.parse::<u64>().unwrap()
+            res
         })
         .sum()
 }
