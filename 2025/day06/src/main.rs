@@ -40,7 +40,7 @@ fn main() {
         })
         .collect();
 
-    let mut homework_iter = homework_transposed.iter().peekable();
+    let mut homework_iter = homework_transposed.iter();
 
     let res2: u64 = (0..problem_num)
         .map(|n| {
