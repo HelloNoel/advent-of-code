@@ -67,8 +67,6 @@ fn main() {
         })
         .sum();
 
-    println!("Part 1: {}", res1);
-
     let joltage: Vec<_> = parts
         .into_iter()
         .map(|line| {
@@ -88,6 +86,7 @@ fn main() {
         .map(|(target_jolts, buttons)| solve(target_jolts, buttons).round() as u64)
         .sum();
 
+    println!("Part 1: {}", res1);
     println!("Part 2: {}", res2);
 }
 
@@ -104,25 +103,19 @@ fn solve(target_jolts: &Vec<u32>, buttons: &Vec<Vec<usize>>) -> f64 {
         .iter()
         .fold(Expression::default(), |expr, var| expr + var);
 
-    let mut problem = vars.minimise(objective).using(default_solver);
+    let problem =
+        vars.minimise(&objective)
+            .using(default_solver)
+            .with_all((0..num_constraints).map(|constraint_i| {
+                buttons
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, bs)| bs.contains(&constraint_i))
+                    .fold(Expression::default(), |expr, (button_i, _)| {
+                        expr + &vars_vec[button_i]
+                    })
+                    .eq(target_jolts[constraint_i])
+            }));
 
-    problem = (0..num_constraints).fold(problem, |acc, j| {
-        acc.with(
-            buttons
-                .iter()
-                .enumerate()
-                .fold(Expression::default(), |expr, (i, bs)| {
-                    if bs.contains(&j) {
-                        expr + &vars_vec[i]
-                    } else {
-                        expr
-                    }
-                })
-                .eq(target_jolts[j]),
-        )
-    });
-
-    let solution = problem.solve().unwrap();
-
-    (0..num_vars).map(|i| solution.value(vars_vec[i])).sum()
+    problem.solve().unwrap().eval(&objective)
 }
